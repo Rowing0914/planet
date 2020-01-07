@@ -118,3 +118,6 @@ dmypy.json
 
 # Results
 results/
+
+# pycharm
+.idea
