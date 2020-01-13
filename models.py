@@ -6,8 +6,8 @@ from torch.nn import functional as F
 
 # Wraps the input tuple for a function to process a time x batch x features sequence in batch x features (assumes one output)
 def bottle(f, x_tuple):
-  x_sizes = tuple(map(lambda x: x.size(), x_tuple))
-  y = f(*map(lambda x: x[0].view(x[1][0] * x[1][1], *x[1][2:]), zip(x_tuple, x_sizes)))
+  x_sizes = tuple(map(lambda x: x.size(), x_tuple))  # 49 x 50 x 3 x 64 x 64
+  y = f(*map(lambda x: x[0].view(x[1][0] * x[1][1], *x[1][2:]), zip(x_tuple, x_sizes)))  # 2450, 1024
   y_size = y.size()
   return y.view(x_sizes[0][0], x_sizes[0][1], *y_size[1:])
 
