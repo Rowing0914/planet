@@ -84,15 +84,20 @@ def _test_transition_model(batch_size=32, horizon=8, belief_size=200, state_size
 
     # encode the images into the latent space
     feat = encoder(image=obses_t.astype(np.float32))
+    feat = tf.reshape(feat, shape=(horizon, batch_size, -1))
 
-    feat = tf.reshape(feat, shape=(batch_size, horizon, -1))
+    # transpose the data into: horizon x batch x dim_data
+    dones = np.transpose(dones, axes=(1, 0))
+    actions = np.transpose(actions, axes=(1, 0, 2))
+
+    dones = np.tile(dones[..., np.newaxis], reps=(1, 1, state_size))
 
     # apply the forward dynamics over the horizon at once
     out = model(prev_state=init_state,
                 actions=actions,
                 prev_belief=init_belief,
                 obs=feat,
-                dones=dones[..., np.newaxis])
+                dones=dones)
     belief, prior_states, prior_means, prior_std_devs, posterior_states, posterior_means, posterior_std_devs = out
     print_gpu_info(gpu_id=0)
     print(belief.shape,

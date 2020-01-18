@@ -76,10 +76,10 @@ class TransitionModel(tf.Module):
 
         for t in range(T - 1):
             # Select appropriate previous state
-            _state = prior_states[t] if obs is None else posterior_states[t]  # batch x horizon x state_size
+            _state = prior_states[t] if obs is None else posterior_states[t]  # batch x state_size
 
             # Mask if previous transition was terminal
-            _state = _state if dones is None else _state * dones[t]  # batch x horizon x state_size
+            _state = _state if dones is None else _state * dones[t]  # batch x state_size
 
             # Compute belief (deterministic hidden state)
             hidden = self.fc_embed_state_action(tf.concat([_state, actions[t]], axis=-1))  # batch x belief
@@ -95,7 +95,7 @@ class TransitionModel(tf.Module):
             if obs is not None:
                 # Compute state posterior by applying transition dynamics and using current observation
                 t_ = t - 1  # Use t_ to deal with different time indexing for observations
-                hidden = self.fc_embed_belief_posterior(tf.concat([beliefs[t + 1], observations[:, t_ + 1]], axis=1))
+                hidden = self.fc_embed_belief_posterior(tf.concat([beliefs[t + 1], obs[t_ + 1]], axis=1))
                 posterior_means[t + 1], _posterior_std_dev = tf.split(self.fc_state_posterior(hidden), 2, axis=1)
                 posterior_std_devs[t + 1] = tf.math.softplus(_posterior_std_dev) + self.min_std_dev
                 noise = tf.random.normal(shape=posterior_means[t + 1].shape)
