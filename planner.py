@@ -18,6 +18,7 @@ class MPCPlanner(jit.ScriptModule):
   def forward(self, belief, state):
     B, H, Z = belief.size(0), belief.size(1), state.size(1)
     belief, state = belief.unsqueeze(dim=1).expand(B, self.candidates, H).reshape(-1, H), state.unsqueeze(dim=1).expand(B, self.candidates, Z).reshape(-1, Z)
+    print("belief: ", belief.shape, "state: ", state.shape)
     # Initialize factorized belief over action sequences q(a_t:t+H) ~ N(0, I)
     action_mean, action_std_dev = torch.zeros(self.planning_horizon, B, 1, self.action_size, device=belief.device), torch.ones(self.planning_horizon, B, 1, self.action_size, device=belief.device)
     for _ in range(self.optimisation_iters):

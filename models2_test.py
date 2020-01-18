@@ -91,7 +91,7 @@ def _test_transition_model(batch_size=32, horizon=8, belief_size=200, state_size
     out = model(prev_state=init_state,
                 actions=actions,
                 prev_belief=init_belief,
-                observations=feat,
+                obs=feat,
                 dones=dones[..., np.newaxis])
     belief, prior_states, prior_means, prior_std_devs, posterior_states, posterior_means, posterior_std_devs = out
     print_gpu_info(gpu_id=0)
