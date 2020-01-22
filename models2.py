@@ -8,18 +8,18 @@ tfd = tfp.distributions
 def reshape(x, tf_flg=True):
     """ Reshape an input to remove the latent overshooting
 
-    :param x: batch-size x time-horizon x other shape(e.g., image)
+    :param x: time-horizon x batch-size x other shape(e.g., image)
     :param tf_flg: data type of x
     """
     if tf_flg:
-        print((int(x.shape[0] * x.shape[1]),), x.shape[2:])
-        newshape = (int(x.shape[0] * x.shape[1]),) + x.shape[2:]  # integrate the time-horizon into the batch-size
+        x_shape = tuple(x.get_shape().as_list())
+        newshape = (int(x_shape[0] * x_shape[1]),) + x_shape[2:]  # integrate the time-horizon into the batch-size
         x = tf.reshape(x, shape=newshape)
-        return x
     else:
-        newshape = (int(x.shape[0] * x.shape[1]),) + x.shape[2:]  # integrate the time-horizon into the batch-size
+        x_shape = x.shape
+        newshape = (int(x_shape[0] * x_shape[1]),) + x_shape[2:]  # integrate the time-horizon into the batch-size
         x = np.reshape(x, newshape=newshape)
-        return x
+    return x
 
 
 class TransitionModel(tf.Module):
@@ -152,13 +152,13 @@ class Decoder(tf.Module):
         out = self.deconv2(out)
         out = self.deconv3(out)
         out = self.deconv4(out)
-
-        expanded_shape = tf.concat(
-            [tf.shape(latent)[:-1], tf.shape(out)[1:]], axis=0)
-        out = tf.reshape(out, expanded_shape)  # (sample, N, T, h, w, c)
-        return tfd.Independent(
-            distribution=tfd.Normal(loc=out, scale=self.scale),
-            reinterpreted_batch_ndims=3)  # wrap (h, w, c)
+        return out
+        # expanded_shape = tf.concat(
+        #     [tf.shape(latent)[:-1], tf.shape(out)[1:]], axis=0)
+        # out = tf.reshape(out, expanded_shape)  # (sample, N, T, h, w, c)
+        # return tfd.Independent(
+        #     distribution=tfd.Normal(loc=out, scale=self.scale),
+        #     reinterpreted_batch_ndims=3)  # wrap (h, w, c)
 
 
 class Encoder(tf.Module):
