@@ -37,7 +37,6 @@ def _test_encoder(batch_size=32, horizon=8):
     obses_t = reshape(x=obses_t, tf_flg=False)
     out = encoder(image=obses_t.astype(np.float32))
     print_gpu_info(gpu_id=0)
-    assert out.shape == (256, 1024)
 
 
 def _test_decoder(batch_size=32, horizon=8, belief_size=200, state_size=30):
@@ -113,16 +112,18 @@ if __name__ == '__main__':
     import numpy as np
     from eager_setup import eager_setup
 
+    batch_size, horizon = 50, 50
+
     eager_setup()
 
     print("=== Test Encoder ===")
-    _test_encoder()
+    _test_encoder(batch_size=batch_size, horizon=horizon)
 
     print("=== Test Decoder ===")
-    _test_decoder()
+    _test_decoder(batch_size=batch_size, horizon=horizon)
 
     print("=== Test Reward Model ===")
-    _test_reward_model()
+    _test_reward_model(batch_size=batch_size, horizon=horizon)
 
     print("=== Test Transition Model ===")
-    _test_transition_model()
+    _test_transition_model(batch_size=batch_size, horizon=horizon)
